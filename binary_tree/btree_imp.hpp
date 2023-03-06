@@ -101,24 +101,28 @@ void BTNode<T>::set_right(BTNode<T>::Ref new_child)
  */
 template<class T>
 BTree<T>::BTree ()
-    {
-        //TODO
-
-        //
-        assert(is_empty());
-    }
+{
+    //TODO
+    this->root_ = nullptr;
+    this->left_= nullptr;
+    this->right_ = nullptr;
+    //
+    assert(is_empty());
+}
 
     template<class T>
-    BTree<T>::BTree (const T& it)
-    {
-        //TODO
-
-        //
-        assert(!is_empty());
-        assert(item()==it);
-        assert(left()->is_empty());
-        assert(right()->is_empty());
-    }
+BTree<T>::BTree (const T& it)
+{
+    //TODO
+    root_->set_item(it);
+    this->letf_ = nullptr;
+    this->right_ = nullptr;
+    //
+    assert(!is_empty());
+    assert(item()==it);
+    assert(left()->is_empty());
+    assert(right()->is_empty());
+}
 
 template<class T>
 typename BTree<T>::Ref BTree<T>::create()
@@ -200,18 +204,20 @@ template<class T>
   }
 
   template<class T>
-    void BTree<T>::create_root(const T& it)
-    {
-        assert(is_empty());
-        //TODO
+void BTree<T>::create_root(const T& it)
+{
+    assert(is_empty());
+    //TODO
+    root_->set_item(it);
+    this->letf_ = nullptr;
+    this->right_ = nullptr;
+    //
+    assert(!is_empty());
+    assert(item()==it);
+    assert(left()->is_empty());
+    assert(right()->is_empty());
 
-        //
-        assert(!is_empty());
-        assert(item()==it);
-        assert(left()->is_empty());
-        assert(right()->is_empty());
-
-    }
+}
 
 template<class T>
   void BTree<T>::set_item(const T& new_it)
