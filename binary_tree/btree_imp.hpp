@@ -15,7 +15,9 @@ BTNode<T>::BTNode (T const& it, BTNode<T>::Ref l,
                    BTNode<T>::Ref r)
 {
     //TODO
-
+    this->item_ = it;
+    this->right_ = r;
+    this->left_ = l;
     //
     assert(item()==it);
     assert(left()==l);
@@ -36,7 +38,7 @@ T BTNode<T>::item() const
 
     T ret_v;
     //TODO
-
+    ret_v = this->item_;
     //
     return ret_v;
 }
@@ -49,7 +51,7 @@ typename BTNode<T>::Ref BTNode<T>::left() const
 
     typename BTNode<T>::Ref child;
     //TODO
-
+    child = this->left_;
     //
     return child;
 }
@@ -61,7 +63,7 @@ typename BTNode<T>::Ref BTNode<T>::right() const
 
     typename BTNode<T>::Ref child;
     //TODO
-
+    child = this->right_;
     //
     return child;
 }
@@ -70,7 +72,7 @@ template<class T>
 void BTNode<T>::set_item(const T& new_it)
 {
     //TODO
-
+    this->item_ = new_it;
     //
     assert(item()==new_it);
 }
@@ -79,7 +81,7 @@ template<class T>
 void BTNode<T>::set_left(BTNode<T>::Ref new_child)
 {
     //TODO
-
+    this->left_ = new_child;
     //
     assert(left()==new_child);
 }
@@ -88,7 +90,7 @@ template<class T>
 void BTNode<T>::set_right(BTNode<T>::Ref new_child)
 {
     //TODO
-
+    this->right_ = new_child;
     //
     assert(right()==new_child);
 }
