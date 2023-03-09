@@ -270,8 +270,6 @@ protected:
   //TODO
   //Give a representation.
   typename BTNode<T>::Ref root_;
-  typename BTree<T>::Ref left_;
-  typename BTree<T>::Ref right_;
 };
 
 #include "btree_imp.hpp"

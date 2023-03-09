@@ -22,7 +22,24 @@ int compute_height (typename BTree<T>::Ref t)
     assert(t != nullptr);
     int height = 0;
     //TODO
+    int leftHeigth = 0, rightHeigth = 0;
 
+    if(t->is_empty())
+    {
+        return -1;
+    }
+
+    leftHeigth = compute_height<T>(t->left());
+    rightHeigth = compute_height<T>(t->right());
+
+    if (rightHeigth >= leftHeigth)
+    {
+        height = 1 + rightHeigth;
+    }
+    else
+    {
+        height = 1 + leftHeigth;
+    }
     //
     return height;
 }
@@ -36,6 +53,15 @@ size_t compute_size (typename BTree<T>::Ref t)
     //Hint: when you call a template into other template maybe you need
     // to specialize the call.
 
+    if(t->is_empty())
+    {
+    return 0;
+    }
+
+    ret_val ++;
+
+    ret_val = ret_val + compute_size<T>(t->left());
+    ret_val = ret_val + compute_size<T>(t->right());
     //
     return ret_val;
 }
@@ -49,7 +75,20 @@ prefix_process(typename BTree<T>::Ref tree, Processor& p)
     //TODO
     //Hint: when you call a template into other template maybe you need
     // to specialize the call.
-
+    if(tree->is_empty() == false)
+    {
+        retVal = p(tree->item());
+        auto left = tree->left();
+        if(left->is_empty() == false)
+        {
+            retVal = retVal && prefix_process<T>(left,p);
+        }
+        auto right = tree->right();
+        if(right->is_empty() == false)
+        {
+            retVal = retVal && prefix_process<T>(right,p);
+        }
+    }
     //
     return retVal;
 }
@@ -63,7 +102,21 @@ infix_process(typename BTree<T>::Ref tree, Processor& p)
     //TODO
     //Hint: when you call a template into other template maybe you need
     // to specialize the call.
+    if(not tree->is_empty())
+    {
+        auto left = tree->left;
+        if(left->is_empty() == false)
+        {
+            retVal = infix_process<T>(left, p);
+        }
+        retVal = retVal && p(tree->item());
 
+        auto right = tree->right();
+        if(right->is_empty() == false)
+        {
+            retVal = retVal && infix_process<T>(right,p);
+        }
+    }
     //
     return retVal;
 }
@@ -77,7 +130,20 @@ postfix_process(typename BTree<T>::Ref tree, Processor& p)
     //TODO
     //Hint: when you call a template into other template maybe you need
     // to specialize the call.
-
+    if(not tree -> is_empty())
+    {
+        auto left = tree->left();
+        if(left->is_empty() == false)
+        {
+            retVal = postfix_process<T>(left,p);
+        }
+        auto right = tree->right();
+        if(right->is_empty() == false)
+        {
+            retVal = retVal && postfix_process<T>(right,p);
+        }
+        retVal = retVal && p(tree->item());
+    }
     //
     return retVal;
 }
