@@ -153,6 +153,11 @@ typename BTree<T>::Ref BTree<T>::create (std::istream& in) noexcept(false)
         in >> token;
         std::istringstream aux(token); // hay que hacerlo como en la practica 1, ya que no podemos cargar el token directamente en el new_item
         aux >> new_item;
+        std::istringstream string(token);
+        if (!(string >> new_item)) // comprueba si el token puede ser convertido a tipo T.
+        {
+            throw std::runtime_error("Wrong input format.");
+        }
         tree->create_root(new_item);
         tree->set_left(create(in));
         tree->set_right(create(in));
