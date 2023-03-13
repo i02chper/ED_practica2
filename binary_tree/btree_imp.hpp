@@ -296,8 +296,6 @@ BTree<T>::BTree (typename BTNode<T>::Ref n)
 {
     //TODO
     this->create_root(n);
-    /*auto tree = BTree<T>::create();
-    tree->create_root(n);*/
     //
     assert(root()==n);
 }
