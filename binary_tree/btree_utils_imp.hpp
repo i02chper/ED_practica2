@@ -67,56 +67,59 @@ size_t compute_size (typename BTree<T>::Ref t)
 }
 
 template <class T, typename Processor>
-bool
-prefix_process(typename BTree<T>::Ref tree, Processor& p)
+bool prefix_process(typename BTree<T>::Ref tree, Processor& p)
 {
     assert(tree != nullptr);
     bool retVal = true;
     //TODO
     //Hint: when you call a template into other template maybe you need
     // to specialize the call.
-    if(tree->is_empty() == false)
-    {
-        retVal = p(tree->item());
-        auto left = tree->left();
-        if(left->is_empty() == false)
-        {
-            retVal = retVal && prefix_process<T>(left,p);
-        }
-        auto right = tree->right();
-        if(right->is_empty() == false)
-        {
-            retVal = retVal && prefix_process<T>(right,p);
-        }
+    if (tree->is_empty()) {
+        return true;
+    }
+
+    // Call the processor function on the current item
+    // and set the return value accordingly.
+    retVal = p(tree->item());
+
+    // Call prefix_process recursively on the left subtree
+    // and right subtree, and update the return value accordingly.
+    if (retVal) {
+        retVal = prefix_process<T, Processor>(tree->left(), p);
+    }
+    if (retVal) {
+        retVal = prefix_process<T, Processor>(tree->right(), p);
     }
     //
     return retVal;
 }
 
 template <class T, class Processor>
-bool
-infix_process(typename BTree<T>::Ref tree, Processor& p)
+bool infix_process(typename BTree<T>::Ref tree, Processor& p)
 {
     assert(tree != nullptr);
     bool retVal = true;
     //TODO
     //Hint: when you call a template into other template maybe you need
     // to specialize the call.
-    if(not tree->is_empty())
-    {
-        auto left = tree->left();
-        if(left->is_empty() == false)
-        {
-            retVal = infix_process<T>(left, p);
-        }
-        retVal = retVal && p(tree->item());
 
-        auto right = tree->right();
-        if(right->is_empty() == false)
-        {
-            retVal = retVal && infix_process<T>(right,p);
+    if (!tree->is_empty()) {
+        // Call infix_process recursively on the left subtree
+        // and update the return value accordingly.
+        if (tree->left()->is_empty() || infix_process<T, Processor>(tree->left(), p)) {
+            // Call the processor function on the current item
+            // and set the return value accordingly.
+            retVal = p(tree->item());
+
+            // Call infix_process recursively on the right subtree
+            // and update the return value accordingly.
+            if (retVal && (tree->right()->is_empty() || infix_process<T, Processor>(tree->right(), p))) {
+                return retVal = true;
+            }
         }
+        return retVal=false;
     }
+    retVal = true;
     //
     return retVal;
 }
@@ -130,20 +133,19 @@ postfix_process(typename BTree<T>::Ref tree, Processor& p)
     //TODO
     //Hint: when you call a template into other template maybe you need
     // to specialize the call.
-    if(not tree -> is_empty())
-    {
-        auto left = tree->left();
-        if(left->is_empty() == false)
-        {
-            retVal = postfix_process<T>(left,p);
+    if (!tree->is_empty()) {
+        // Call postfix_process recursively on the left subtree
+        // and right subtree, and update the return value accordingly.
+        if (tree->left()->is_empty() || postfix_process<T, Processor>(tree->left(), p)) {
+            if (tree->right()->is_empty() || postfix_process<T, Processor>(tree->right(), p)) {
+                // Call the processor function on the current item
+                // and set the return value accordingly.
+                retVal = p(tree->item());
+            }
         }
-        auto right = tree->right();
-        if(right->is_empty() == false)
-        {
-            retVal = retVal && postfix_process<T>(right,p);
-        }
-        retVal = retVal && p(tree->item());
+        return retVal;
     }
+    return true;
     //
     return retVal;
 }
@@ -160,20 +162,20 @@ breadth_first_process(typename BTree<T>::Ref tree, Processor& p)
     //  of traversal.
     typename BTree<T>::Ref subtree;
     std::queue<typename BTree<T>::Ref> q;
-    q.push(tree);// encolamos el árbol antes de empezar.
+    q.push(tree);
 
-    while(!q.empty() && go_on)
+    while (!q.empty() && go_on)
     {
-        subtree = q.front();    // igualamos al subtree al frente
-        if (!subtree->is_empty())
-        {
-        go_on = p(subtree->item());
-        q.push(subtree->right()); // metemos el arbol derecho en la cola
-        q.push(subtree->left()); //metemos el árbol izquierdo en la cola
-        }
+        subtree = q.front();
         q.pop();
-    }
 
+        if (subtree && !subtree->is_empty()) // fixed this line
+        {
+            go_on = p(subtree->item());
+            q.push(subtree->left());
+            q.push(subtree->right());
+        }
+    }
     //
     return go_on;
 }
@@ -186,7 +188,7 @@ print_prefix(std::ostream& out, typename BTree<T>::Ref tree)
     //You must create a lambda function with a parameter to be printed and
     //  use a prefix_process to process the tree with this lambda.
     //Remember: the lambda must return true.
-    if (tree->is.empty()) {
+    if (tree->is_empty()) {
         return out;
     }
 
@@ -218,49 +220,39 @@ print_infix(std::ostream& out, typename BTree<T>::Ref tree)
 }
 
 template <class T>
-std::ostream&
-print_postfix(std::ostream& out, typename BTree<T>::Ref tree)
+std::ostream& print_postfix(std::ostream& out, typename BTree<T>::Ref tree)
 {
     //TODO
     //You must create a lambda function with a parameter to be printed and
     //  use a postfix_process to process the tree with this lambda.
     //Remember: the lambda must return true.
-    if (!tree->is_empty())
-    {
-        print_infix<T>(out, tree->left());
-        print_infix<T>(out, tree->right());
-        out << tree->item() << " ";
-    }
+    auto print_fn = [&out](T item) -> bool {
+        out << item << " ";
+        return true;
+    };
+
+    postfix_process<T>(tree, print_fn);
     //
     return out;
 }
 
 template <class T>
-std::ostream&
-print_breadth_first(std::ostream& out, typename BTree<T>::Ref tree)
+std::ostream& print_breadth_first(std::ostream& out, typename BTree<T>::Ref tree)
 {
     //TODO
     //You must create a lambda function with a parameter to be printed and
     //  use a breadth_first_process to process the tree with this lambda.
     //Remember: the lambda must return true.
-    if (tree->is_empty()){
-        return out;
-    }
+    auto lambda = [&](typename BTree<T>::Ref node) {
+        out << node->item() << " ";
+        return true;
+    };
 
-    std::queue<typename BTree<T>::Ref> q;
-    q.push(tree);
+    auto processor = [&](int item) {
+        return lambda(BTree<int>::create(item));
+    };
 
-    while (!q.empty()){
-        typename BTree<T>::Ref curr = q.front();
-        q.pop();
-        out << curr->item() << " ";
-        if (curr->left()){
-            q.push(curr->left());
-        }
-        if (curr->right()) {
-        q.push(curr->right());
-        }
-    }
+    breadth_first_process<T, decltype(processor)>(tree, processor);
     //
     return out;
 }
@@ -276,17 +268,28 @@ bool search_prefix(typename BTree<T>::Ref tree, const T& it, size_t& count)
     // Use the lambda with the prefix_process.
     //Remember: Also, the lambda must update the count variable and
     //must return True/False.
-    if (tree->is_empty())
-    {
-            return found;
-    }
-    count++;
-    if (tree->item() == it) {
-        found = true;
-    }
-    found = search_prefix<T>(tree->left(), it, count);
-    found = search_prefix<T>(tree->right(), it, count);
+    auto prefix_compare = [&it, &count](const T& item) -> bool {
+        std::string item_str = std::to_string(item);
+        std::string it_str = std::to_string(it);
+        if (item_str.size() < it_str.size()) {
+            return false;
+        }
+        bool is_prefix = true;
+        for (size_t i = 0; i < it_str.size(); ++i) {
+            if (item_str[i] != it_str[i]) {
+                is_prefix = false;
+                break;
+            }
+        }
+        if (is_prefix) {
+            ++count;
+        }
+        return is_prefix;
+    };
 
+    prefix_process<T, decltype(prefix_compare)>(tree, prefix_compare);
+
+    found = (count > 0);
 
     //
     return found;
@@ -369,7 +372,7 @@ bool search_breadth_first(typename BTree<T>::Ref tree, const T& it, size_t& coun
     // Use the lambda with the breadth_first_process.
     //Remember: Also, the lambda must update the count variable and
     //must return True/False.
-    if (tree->is.empty()) {
+    if (tree->is_empty()) {
         return found;
     }
 
