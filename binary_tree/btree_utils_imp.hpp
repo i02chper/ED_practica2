@@ -159,15 +159,12 @@ print_prefix(std::ostream& out, typename BTree<T>::Ref tree)
     //You must create a lambda function with a parameter to be printed and
     //  use a prefix_process to process the tree with this lambda.
     //Remember: the lambda must return true.
-    if (tree->is_empty()) {
-        return out;
-    }
+    auto print_fn = [&out](T item) -> bool {
+        out << item << " ";
+        return true;
+    };
 
-    out << tree->item() << " "; // output the current node's value
-
-    // recursively output the left and right subtrees
-    print_prefix<T>(out, tree->left());
-    print_prefix<T>(out, tree->right());
+    prefix_process<T>(tree, print_fn);
     //
     return out;
 }
@@ -180,12 +177,12 @@ print_infix(std::ostream& out, typename BTree<T>::Ref tree)
     //You must create a lambda function with a parameter to be printed and
     //  use an infix_process to process the tree with this lambda.
     //Remember: the lambda must return true.
-    if (!tree->is_empty())
-    {
-        print_infix<T>(out, tree->left());
-        out << tree->item() << " ";
-        print_infix<T>(out, tree->right());
-    }
+    auto print_fn = [&out](T item) -> bool {
+        out << item << " ";
+        return true;
+    };
+
+    infix_process<T>(tree, print_fn);
     //
     return out;
 }
